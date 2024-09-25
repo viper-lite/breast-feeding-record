@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Image, StyleSheet, Platform, View, Text, Button } from "react-native";
 import Selector, { SelectorRef } from "@/components/Selector";
 import StorageUtil from "@/utils/StorageUtil";
@@ -10,19 +10,35 @@ export default function HomeScreen() {
   const [selectedAppetite, setSelectedAppetite] = useState(-1);
   const selectorRef = useRef<SelectorRef>(null);
   const [visible, setVisible] = useState(false);
+  const [status, setStatus] = useState({
+    date: DateUtil.getCurrentDate(),
+    time: DateUtil.getCurrentTime(),
+    days: DateUtil.getCurrentDays(),
+  });
+  useEffect(() => {
+    setInterval(() => {
+      setStatus({
+        date: DateUtil.getCurrentDate(),
+        time: DateUtil.getCurrentTime(),
+        days: DateUtil.getCurrentDays(),
+      });
+    }, 500);
+    return function cleanup() {};
+  }, []);
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.title_container}>
-        <Text style={styles.title}>当前日期：{DateUtil.getCurrentDate()}</Text>
-        <Text style={styles.title}>当前时间：{DateUtil.getCurrentTime()}</Text>
-        <Text style={styles.title}>
-          大宝出生已经：{DateUtil.getCurrentDays()}天
-        </Text>
+        <Text style={styles.title}>当前日期：{status.date}</Text>
+        <Text style={styles.title}>当前时间：{status.time}</Text>
+        <Text style={styles.title}>大宝出生已经：{status.days}天</Text>
       </View>
       <View style={styles.selector_container}>
         <Selector
           ref={selectorRef}
-          items={[10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120]}
+          items={[
+            10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150,
+            160,
+          ]}
           onSelectedChanged={(value) => {
             setSelectedAppetite(value);
           }}
@@ -32,13 +48,16 @@ export default function HomeScreen() {
         <View style={styles.button_container}>
           <Button
             title="母乳喂养"
-            onPress={() => {
+            onPress={async () => {
               StorageUtil.insertOrUpdate({
                 timestamp: DateUtil.getCurrentTimestamp(),
                 days: DateUtil.getCurrentDays(),
                 value: -1,
                 type: "母乳",
-              });
+              }).then(
+                () => {},
+                (e) => {}
+              );
               selectorRef.current?.reset();
               setVisible(true);
             }}
@@ -56,7 +75,10 @@ export default function HomeScreen() {
                 days: DateUtil.getCurrentDays(),
                 value: selectedAppetite,
                 type: "奶粉",
-              });
+              }).then(
+                () => {},
+                (e) => {}
+              );
               selectorRef.current?.reset();
               setVisible(true);
             }}

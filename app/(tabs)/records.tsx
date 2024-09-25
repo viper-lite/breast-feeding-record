@@ -1,4 +1,4 @@
-import { StyleSheet, Platform, View, Text } from "react-native";
+import { StyleSheet, Button, View, Text } from "react-native";
 import { FlashList, ListRenderItem } from "@shopify/flash-list";
 import { useEffect, useState } from "react";
 import StorageUtil, { RecordItem } from "@/utils/StorageUtil";
@@ -23,22 +23,6 @@ const renderItem: ListRenderItem<RecordItem> = ({ item }) => {
 
 export default function SettingsScreen() {
   const [data, setData] = useState<RecordItem[]>([]);
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      StorageUtil.getPagedRecordList().then(
-        (list) => {
-          setData(list);
-        },
-        (err) => {
-          console.log(err);
-        }
-      );
-    }, 1000);
-    return function cleanup() {
-      // 组件被卸载时的处理
-      clearInterval(intervalId);
-    };
-  }, []);
   return (
     <SafeAreaView style={styles.container}>
       <FlashList
@@ -48,6 +32,19 @@ export default function SettingsScreen() {
           return item.timestamp + "/" + index;
         }}
         estimatedItemSize={200}
+      />
+      <Button
+        title="刷新"
+        onPress={() => {
+          StorageUtil.getPagedRecordList().then(
+            (list) => {
+              setData(list);
+            },
+            (err) => {
+              console.log(err);
+            }
+          );
+        }}
       />
     </SafeAreaView>
   );
